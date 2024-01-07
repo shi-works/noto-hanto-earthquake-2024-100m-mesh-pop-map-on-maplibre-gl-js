@@ -1,7 +1,7 @@
 <html>
 
 <head>
-    <title>令和6年能登半島地震 人口分布図+標高地形図</title>
+    <title>令和6年能登半島地震 100mメッシュ人口分布図+標高地形図</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src='https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js'></script>
@@ -51,6 +51,53 @@
             position: relative;
             margin: 0;
             cursor: ew-resize;
+        }
+
+        .maplibregl-popup .maplibregl-popup-content {
+            padding: 8px 10px;
+            font: 12px/14px Arial, Helvetica, sans-serif;
+            color: black;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.9);
+            border-radius: 5px;
+            width: 220px;
+            height: 180px;
+            overflow: scroll;
+        }
+
+        .maplibregl-popup .maplibregl-popup-content .shinouchimei-title {
+            color: red;
+            font-size: larger;
+        }
+
+        .maplibregl-popup .maplibregl-popup-content .quake-info th {
+            width: 100px;
+        }
+
+        /* 1列目 (左側) を右寄せにする */
+        .maplibregl-popup .maplibregl-popup-content .quake-info td:nth-child(1) {
+            text-align: right;
+            width: 100px;
+            white-space: nowrap;
+            /* 折り返しを防ぐ */
+        }
+
+        /* 2列目 (右側) のセルの幅を広げる */
+        .maplibregl-popup .maplibregl-popup-content .quake-info td:nth-child(2) {
+            text-align: left;
+            width: 150px;
+            white-space: nowrap;
+            /* 折り返しを防ぐ */
+        }
+
+        .maplibregl-popup .maplibregl-popup-content .quake-info b {
+            text-align: right;
+        }
+
+        .maplibregl-popup .maplibregl-popup-content .quake-info,
+        .maplibregl-popup .maplibregl-popup-content .quake-info th,
+        .maplibregl-popup .maplibregl-popup-content .quake-info td {
+            font: 12px/14px Arial, Helvetica, sans-serif;
         }
 
         .legend-hanrei {
@@ -120,7 +167,7 @@
         </div><span style="display: inline-block; margin-left: 5px;">10～20人未満</span><br>
         <div class="square" style='background-color: #00FF00; display: inline-block;'>
         </div><span style="display: inline-block; margin-left: 5px;">20～40人未満</span><br>
-        <div class="square" style='background-color: #E69800; display: inline-block;'>
+        <div class="square" style='background-color: #FFBF00; display: inline-block;'>
         </div><span style="display: inline-block; margin-left: 5px;">40～60人未満</span><br>
         <div class="square" style='background-color: #FF0000; display: inline-block;'>
         </div><span style="display: inline-block; margin-left: 5px;">60～80人未満</span><br>
@@ -147,11 +194,11 @@
         const map = new maplibregl.Map({
             container: 'map',
             style: 'std.json',
-            center: [137.2495, 37.4826],
-            zoom: 9.11,
+            center: [136.90707, 37.3883],
+            zoom: 13.28,
             minZoom: 1,
             maxZoom: 23,
-            pitch: 0,
+            pitch: 59,
             maxPitch: 85,
             bearing: 0,
             hash: true,
@@ -207,7 +254,7 @@
             '#0000FF',
             '#00FFFF',
             '#00FF00',
-            '#E69800',
+            '#FFBF00',
             '#FF0000',
             '#CB00CB'
         ]
@@ -225,6 +272,27 @@
 
             // 産総研 シームレス標高タイルセット
             map.setTerrain({ 'source': 'aist-dem', 'exaggeration': 1 });
+
+            // 行政区域（ポリゴン）ソース
+            map.addSource("pmtiles-gyouseikai", {
+                type: "vector",
+                url: "pmtiles://" + "https://xs489works.xsrv.jp/pmtiles-data/ksj/N03-23_230101_gyouseikai.pmtiles",
+                attribution: '<a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-N03-v3_1.html">国土数値情報 行政区域データ（令和5年度）</a>'
+            });
+
+            // 行政区域ラインレイヤ
+            map.addLayer({
+                "id": "gyouseikai-line",
+                "type": "line",
+                "source": "pmtiles-gyouseikai",
+                "source-layer": "N0323_230101_gyouseikai",
+                minzoom: 9,
+                maxzoom: 18,
+                'paint': {
+                    'line-color': 'rgba(0, 0, 0, 1)',
+                    'line-width': 1.5
+                }
+            });
 
             // 令和2年簡易100mメッシュ人口（石川県）ソース
             map.addSource("100m_mesh_pop2020_ishikawa", {
@@ -256,14 +324,14 @@
                 }
             });
 
-            // 令和2年簡易100mメッシュ人口（石川県）ソース
+            // 令和2年簡易100mメッシュ人口（富山県）ソース
             map.addSource("100m_mesh_pop2020_toyama", {
                 type: "vector",
                 url: "pmtiles://https://xs489works.xsrv.jp/pmtiles-data/100m_mesh_pop2020/100m_mesh_pop2020_toyama.pmtiles",
                 attribution: '<a href="https://gtfs-gis.jp/teikyo/kani_100m_download2020.html" target="_blank">地域・交通データ研究所 簡易100mメッシュ人口データ</a>',
             });
 
-            // 令和2年簡易100mメッシュ人口（石川県）レイヤ
+            // 令和2年簡易100mメッシュ人口（富山県）レイヤ
             map.addLayer({
                 'id': '100m_mesh_pop2020_toyama-fill',
                 'type': 'fill-extrusion',
@@ -286,6 +354,120 @@
                 }
             });
 
+            // 役場ソース
+            map.addSource('town-hall', {
+                'type': 'geojson',
+                'data': 'https://xs489works.xsrv.jp/pmtiles-data/ksj/P05-22_01_47_town_hall_add_cityname.geojson',
+                attribution: '<a href="https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-P05-v3_0.html">国土数値情報 市町村役場（令和4年度）</a>'
+            });
+
+            // 役場ポイントレイヤ
+            // 外側の黒い円
+            map.addLayer({
+                'id': 'town-hall-points-outer-1',
+                'type': 'circle',
+                'source': 'town-hall',
+                'minzoom': 9,
+                'maxzoom': 12,
+                'paint': {
+                    'circle-color': 'rgba(0, 0, 0, 1)',
+                    'circle-radius': 5.5,
+                    'circle-blur': 0,
+                    'circle-opacity': 1
+                }
+            });
+
+            // 内側の白い円
+            map.addLayer({
+                'id': 'town-hall-points-inner-1',
+                'type': 'circle',
+                'source': 'town-hall',
+                'minzoom': 9,
+                'maxzoom': 12,
+                'paint': {
+                    'circle-color': 'rgba(255, 255, 255, 1)',
+                    'circle-radius': 4,
+                    'circle-blur': 0,
+                    'circle-opacity': 1
+                }
+            });
+
+            // 外側の黒い円
+            map.addLayer({
+                'id': 'town-hall-points-outer-2',
+                'type': 'circle',
+                'source': 'town-hall',
+                'minzoom': 9,
+                'maxzoom': 12,
+                'paint': {
+                    'circle-color': 'rgba(0, 0, 0, 1)',
+                    'circle-radius': 3,
+                    'circle-blur': 0,
+                    'circle-opacity': 1
+                }
+            });
+
+            // 内側の白い円
+            map.addLayer({
+                'id': 'town-hall-points-inner-2',
+                'type': 'circle',
+                'source': 'town-hall',
+                'minzoom': 9,
+                'maxzoom': 12,
+                'paint': {
+                    'circle-color': 'rgba(255, 255, 255, 1)',
+                    'circle-radius': 2.25,
+                    'circle-blur': 0,
+                    'circle-opacity': 1
+                }
+            });
+
+            // 役場ラベルレイヤ
+            map.addLayer({
+                'id': 'town-hall-labels-1',
+                'type': 'symbol',
+                'source': 'town-hall',
+                minzoom: 9,
+                maxzoom: 12,
+                'layout': {
+                    'text-field': ['get', 'city_name'],
+                    'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                    'text-size': 12,
+                    'text-anchor': 'center',
+                    'text-justify': 'center',
+                    'text-offset': [0, -1.0],
+                    'text-allow-overlap': true
+                },
+                'paint': {
+                    'text-color': 'rgba(0, 0, 0, 1)',
+                    'text-halo-color': 'rgba(255, 255, 255, 1)',
+                    'text-halo-width': 1
+                }
+            });
+
+            // 役場ラベルレイヤ
+            map.addLayer({
+                'id': 'town-hall-labels-2',
+                'type': 'symbol',
+                'source': 'town-hall',
+                minzoom: 12,
+                maxzoom: 18,
+                'layout': {
+                    'text-field': ['get', 'city_name'],
+                    'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+                    'text-size': 18,
+                    'text-anchor': 'center',
+                    'text-justify': 'center',
+                    'text-offset': [0, -1.0],
+                    'text-allow-overlap': true
+                },
+                'paint': {
+                    'text-color': 'rgba(0, 0, 0, 1)',
+                    'text-halo-color': 'rgba(255, 255, 255, 1)',
+                    'text-halo-width': 2
+                }
+            });
+
         });
 
         // スライダーでデジタル標高地形図の不透明度を制御
@@ -298,7 +480,66 @@
                 'raster-opacity',
                 parseInt(e.target.value, 10) / 100
             );
-            digielesliderOpactiyValue.textContent = e.target.value + '%';
+            digieleliderOpactiyValue.textContent = e.target.value + '%';
+        });
+
+        // クリック時のポップアップ表示
+        map.on('click', '100m_mesh_pop2020_ishikawa-fill', (e) => {
+            var lng = e.features[0].geometry.coordinates[0];
+            var lat = e.features[0].geometry.coordinates[1];
+            var MESH_CODE = e.features[0].properties['MESH_CODE'];
+            var Shicode = e.features[0].properties['Shicode'];
+            var PopT = e.features[0].properties['PopT'];
+            var Pop0_14 = e.features[0].properties['Pop0_14'];
+            var Pop15_64 = e.features[0].properties['Pop15_64'];
+            var Pop65over = e.features[0].properties['Pop65over'];
+            var Pop75over = e.features[0].properties['Pop75over'];
+            var Pop85over = e.features[0].properties['Pop85over'];
+
+            new maplibregl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(
+                    '<table class="quake-info">' +
+                    '<tr>' +
+                    '<th></th>' +
+                    '<th></th>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>メッシュコード：</td>' +
+                    '<td><b>' + MESH_CODE + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>市区町村コード：</td>' +
+                    '<td><b>' + Shicode + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>総人口：</td>' +
+                    '<td><b>' + PopT + '人' + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>0～14歳人口：</td>' +
+                    '<td><b>' + Pop0_14 + '人' + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>15～64歳人口：</td>' +
+                    '<td><b>' + Pop15_64 + '人' + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>65歳以上人口：</td>' +
+                    '<td><b>' + Pop65over + '人' + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>75歳以上人口：</td>' +
+                    '<td><b>' + Pop75over + '人' + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>85歳以上人口：</td>' +
+                    '<td><b>' + Pop85over + '人' + '</b></td>' +
+                    '</tr>' +
+                    '</table>' +
+                    '<a href="https://www.google.com/maps?q=' + lat + "," + lng + "&hl=ja" + '" target="_blank" class="google-maps-link">🌎Google Maps</a>'
+                )
+                .addTo(map);
         });
     </script>
 </body>
