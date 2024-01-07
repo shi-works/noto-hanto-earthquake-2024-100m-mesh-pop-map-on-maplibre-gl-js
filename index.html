@@ -70,12 +70,12 @@
             font-size: larger;
         }
 
-        .maplibregl-popup .maplibregl-popup-content .quake-info th {
+        .maplibregl-popup .maplibregl-popup-content .pop-info th {
             width: 100px;
         }
 
         /* 1列目 (左側) を右寄せにする */
-        .maplibregl-popup .maplibregl-popup-content .quake-info td:nth-child(1) {
+        .maplibregl-popup .maplibregl-popup-content .pop-info td:nth-child(1) {
             text-align: right;
             width: 100px;
             white-space: nowrap;
@@ -83,20 +83,20 @@
         }
 
         /* 2列目 (右側) のセルの幅を広げる */
-        .maplibregl-popup .maplibregl-popup-content .quake-info td:nth-child(2) {
+        .maplibregl-popup .maplibregl-popup-content .pop-info td:nth-child(2) {
             text-align: left;
             width: 150px;
             white-space: nowrap;
             /* 折り返しを防ぐ */
         }
 
-        .maplibregl-popup .maplibregl-popup-content .quake-info b {
+        .maplibregl-popup .maplibregl-popup-content .pop-info b {
             text-align: right;
         }
 
-        .maplibregl-popup .maplibregl-popup-content .quake-info,
-        .maplibregl-popup .maplibregl-popup-content .quake-info th,
-        .maplibregl-popup .maplibregl-popup-content .quake-info td {
+        .maplibregl-popup .maplibregl-popup-content .pop-info,
+        .maplibregl-popup .maplibregl-popup-content .pop-info th,
+        .maplibregl-popup .maplibregl-popup-content .pop-info td {
             font: 12px/14px Arial, Helvetica, sans-serif;
         }
 
@@ -485,8 +485,17 @@
 
         // クリック時のポップアップ表示
         map.on('click', '100m_mesh_pop2020_ishikawa-fill', (e) => {
-            var lng = e.features[0].geometry.coordinates[0];
-            var lat = e.features[0].geometry.coordinates[1];
+            var coordinates = e.features[0].geometry.coordinates[0]; // ポリゴンの頂点の配列
+            var lngSum = 0, latSum = 0;
+
+            coordinates.forEach(coord => {
+                lngSum += coord[0]; // 経度の合計
+                latSum += coord[1]; // 緯度の合計
+            });
+
+            var lng = lngSum / coordinates.length; // 経度の平均
+            var lat = latSum / coordinates.length; // 緯度の平均
+
             var MESH_CODE = e.features[0].properties['MESH_CODE'];
             var Shicode = e.features[0].properties['Shicode'];
             var PopT = e.features[0].properties['PopT'];
@@ -499,7 +508,7 @@
             new maplibregl.Popup()
                 .setLngLat(e.lngLat)
                 .setHTML(
-                    '<table class="quake-info">' +
+                    '<table class="pop-info">' +
                     '<tr>' +
                     '<th></th>' +
                     '<th></th>' +
@@ -541,6 +550,75 @@
                 )
                 .addTo(map);
         });
+
+        // クリック時のポップアップ表示
+        map.on('click', '100m_mesh_pop2020_toyama-fill', (e) => {
+            var coordinates = e.features[0].geometry.coordinates[0]; // ポリゴンの頂点の配列
+            var lngSum = 0, latSum = 0;
+
+            coordinates.forEach(coord => {
+                lngSum += coord[0]; // 経度の合計
+                latSum += coord[1]; // 緯度の合計
+            });
+
+            var lng = lngSum / coordinates.length; // 経度の平均
+            var lat = latSum / coordinates.length; // 緯度の平均
+
+            var MESH_CODE = e.features[0].properties['MESH_CODE'];
+            var Shicode = e.features[0].properties['Shicode'];
+            var PopT = e.features[0].properties['PopT'];
+            var Pop0_14 = e.features[0].properties['Pop0_14'];
+            var Pop15_64 = e.features[0].properties['Pop15_64'];
+            var Pop65over = e.features[0].properties['Pop65over'];
+            var Pop75over = e.features[0].properties['Pop75over'];
+            var Pop85over = e.features[0].properties['Pop85over'];
+
+            new maplibregl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(
+                    '<table class="pop-info">' +
+                    '<tr>' +
+                    '<th></th>' +
+                    '<th></th>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>メッシュコード：</td>' +
+                    '<td><b>' + MESH_CODE + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>市区町村コード：</td>' +
+                    '<td><b>' + Shicode + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>総人口：</td>' +
+                    '<td><b>' + PopT + '人' + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>0～14歳人口：</td>' +
+                    '<td><b>' + Pop0_14 + '人' + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>15～64歳人口：</td>' +
+                    '<td><b>' + Pop15_64 + '人' + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>65歳以上人口：</td>' +
+                    '<td><b>' + Pop65over + '人' + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>75歳以上人口：</td>' +
+                    '<td><b>' + Pop75over + '人' + '</b></td>' +
+                    '</tr>' +
+                    '<tr>' +
+                    '<td>85歳以上人口：</td>' +
+                    '<td><b>' + Pop85over + '人' + '</b></td>' +
+                    '</tr>' +
+                    '</table>' +
+                    '<a href="https://www.google.com/maps?q=' + lat + "," + lng + "&hl=ja" + '" target="_blank" class="google-maps-link">🌎Google Maps</a>'
+                )
+                .addTo(map);
+        });
+
     </script>
 </body>
 
