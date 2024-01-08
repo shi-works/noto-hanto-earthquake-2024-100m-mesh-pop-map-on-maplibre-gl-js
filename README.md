@@ -4,7 +4,7 @@
 ## Public Website
 https://shi-works.github.io/noto-hanto-earthquake-2024-100m-mesh-pop-map-on-maplibre-gl-js/
 
-![image](https://github.com/shi-works/noto-hanto-earthquake-2024-100m-mesh-pop-map-on-maplibre-gl-js/assets/71203808/0cdac207-12bb-4db5-99b9-165511e458e7)
+![image](https://github.com/shi-works/noto-hanto-earthquake-2024-100m-mesh-pop-map-on-maplibre-gl-js/assets/71203808/5efc3bc8-2045-43f1-9e18-b9c9818ed4b6)
 
 ## Data Source
 ### 人口分布データ
