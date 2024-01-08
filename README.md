@@ -4,6 +4,8 @@
 ## Public Website
 https://shi-works.github.io/noto-hanto-earthquake-2024-100m-mesh-pop-map-on-maplibre-gl-js/
 
+![image](https://github.com/shi-works/noto-hanto-earthquake-2024-100m-mesh-pop-map-on-maplibre-gl-js/assets/71203808/0cdac207-12bb-4db5-99b9-165511e458e7)
+
 ## Data Source
 ### 人口分布データ
 - 令和2年簡易100mメッシュ人口データ（石川県、富山県）（FlatGeobuf形式）
